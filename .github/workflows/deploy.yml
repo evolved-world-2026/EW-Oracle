@@ -5,10 +5,16 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+# Needed for Pages + artifact upload
 permissions:
   contents: write
   pages: write
   id-token: write
+
+# Prevent overlapping deploys
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -22,9 +28,10 @@ jobs:
         with:
           node-version: 20
 
+      # Write .env for the build. Make sure you created a repo secret named GEMINI_API_KEY.
       - name: Inject env
         run: |
-          echo "VITE_GEMINI_API_KEY=${{ secrets.VITE_GEMINI_API_KEY }}" > .env
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
 
       - name: Install
         run: npm install
@@ -32,6 +39,7 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Optional downloadable ZIP of the built site
       - name: Archive dist for download
         run: |
           cd dist
@@ -44,6 +52,7 @@ jobs:
           name: site-dist
           path: site-dist.zip
 
+      # Upload the artifact GitHub Pages will deploy
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

@@ -27,7 +27,7 @@ jobs:
           echo "VITE_GEMINI_API_KEY=${{ secrets.VITE_GEMINI_API_KEY }}" > .env
 
       - name: Install
-        run: npm ci
+        run: npm install
 
       - name: Build
         run: npm run build
